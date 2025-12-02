@@ -50,6 +50,18 @@ app.get("/", (req, res) => {
   res.json({ message: "API Running...", timestamp: new Date().toISOString() });
 });
 
+// Debug route
+app.get("/api/test", (req, res) => {
+  res.json({ 
+    status: "OK",
+    message: "Backend is responding",
+    endpoints: {
+      login: "POST /api/admin/login",
+      dashboard: "GET /api/admin/dashboard"
+    }
+  });
+});
+
 // API routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin", adminDashboardRoutes); // Dashboard uses /api/admin/dashboard
