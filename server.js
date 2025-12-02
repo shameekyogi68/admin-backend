@@ -17,30 +17,40 @@ connectDB(); // Only one DB connection
 const app = express();
 
 // CORS Configuration for Netlify Frontend
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:3000',
+      'https://convenzadmin.netlify.app'
+    ];
     
-    // Allow all Netlify domains (production + previews)
-    if (origin.includes('convenzadmin.netlify.app') || 
-        origin === 'http://localhost:5173' ||
-        origin === 'http://localhost:5174' ||
-        origin === 'http://localhost:5175' ||
-        origin === 'http://localhost:5176' ||
-        origin === 'http://localhost:3000') {
+    // Allow requests with no origin (Postman, mobile apps, etc.)
+    if (!origin) {
       return callback(null, true);
     }
     
-    // Reject other origins
+    // Allow if in allowedOrigins list OR any Netlify preview domain
+    if (allowedOrigins.includes(origin) || origin.includes('.netlify.app')) {
+      return callback(null, true);
+    }
+    
+    // Reject all other origins
     callback(new Error('Not allowed by CORS'));
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'X-JSON'],
+  maxAge: 86400, // 24 hours
   preflightContinue: false,
   optionsSuccessStatus: 204
-}));
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
