@@ -16,34 +16,20 @@ connectDB(); // Only one DB connection
 
 const app = express();
 
-// Enhanced CORS Configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-  "http://localhost:5176",
-  "http://localhost:3000",
-];
-
-// Add FRONTEND_URL from environment if provided
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-  // Also add variations with different Vite ports
-  const frontendHost = process.env.FRONTEND_URL.replace(':5173', '');
-  allowedOrigins.push(`${frontendHost}:5174`);
-  allowedOrigins.push(`${frontendHost}:5175`);
-  allowedOrigins.push(`${frontendHost}:5176`);
-}
-
-const corsOptions = {
-  origin: allowedOrigins,
-  credentials: true,
+// CORS Configuration for Netlify Frontend
+app.use(cors({
+  origin: [
+    "https://convenzadmin.netlify.app",  // Production frontend
+    "http://localhost:5173",              // Local development
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:3000"
+  ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
-  maxAge: 86400
-};
-
-app.use(cors(corsOptions));
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
