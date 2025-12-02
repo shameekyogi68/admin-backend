@@ -52,11 +52,11 @@ app.get("/", (req, res) => {
 
 // API routes
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminDashboardRoutes); // Dashboard uses /api/admin/dashboard
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/admin", adminDashboardRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 
 const PORT = process.env.PORT || 3001;
