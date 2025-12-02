@@ -72,6 +72,15 @@ app.get("/api/test", (req, res) => {
   });
 });
 
+// Test login route directly (temporary for debugging)
+app.post("/api/admin/login-test", (req, res) => {
+  res.json({ 
+    message: "Direct route works",
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Middleware to log all requests
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
