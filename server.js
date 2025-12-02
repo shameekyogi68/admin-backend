@@ -62,6 +62,12 @@ app.get("/api/test", (req, res) => {
   });
 });
 
+// Middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // API routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin", adminDashboardRoutes); // Dashboard uses /api/admin/dashboard
