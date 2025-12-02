@@ -19,17 +19,20 @@ const app = express();
 // CORS Configuration for Netlify Frontend
 app.use(cors({
   origin: [
-    "https://convenzadmin.netlify.app",  // Production frontend
-    "http://localhost:5173",              // Local development
+    "https://convenzadmin.netlify.app",
+    "https://692e493c2acb7a78af57e56a--convenzadmin.netlify.app",
+    "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:5176",
     "http://localhost:3000"
   ],
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
+
+app.options("*", cors()); // Handle preflight requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
