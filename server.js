@@ -60,31 +60,13 @@ app.get("/", (req, res) => {
   res.json({ message: "API Running...", timestamp: new Date().toISOString() });
 });
 
-// Debug route
-app.get("/api/test", (req, res) => {
+// Health check endpoint
+app.get("/api/health", (req, res) => {
   res.json({ 
     status: "OK",
-    message: "Backend is responding",
-    endpoints: {
-      login: "POST /api/admin/login",
-      dashboard: "GET /api/admin/dashboard"
-    }
-  });
-});
-
-// Test login route directly (temporary for debugging)
-app.post("/api/admin/login-test", (req, res) => {
-  res.json({ 
-    message: "Direct route works",
-    body: req.body,
+    message: "Server is running",
     timestamp: new Date().toISOString()
   });
-});
-
-// Middleware to log all requests
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
 });
 
 // API routes

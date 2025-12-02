@@ -42,28 +42,23 @@ export const registerAdmin = async (req, res) => {
 // -------------------------
 export const loginAdmin = async (req, res) => {
   try {
-    console.log("Login attempt:", req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
-      console.log("Missing credentials");
       return res.status(400).json({ message: "Email and password required" });
     }
 
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      console.log("Admin not found:", email);
       return res.status(404).json({ message: "Admin not found" });
     }
 
     if (admin.status !== "active") {
-      console.log("Account disabled:", email);
       return res.status(403).json({ message: "Account is disabled" });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      console.log("Invalid password for:", email);
       return res.status(400).json({ message: "Invalid Password" });
     }
 
@@ -73,7 +68,6 @@ export const loginAdmin = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    console.log("Login successful:", email);
     res.json({
       message: "Login Successful",
       token,
