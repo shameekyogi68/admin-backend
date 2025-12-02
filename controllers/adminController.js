@@ -45,20 +45,24 @@ export const loginAdmin = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
+      console.log(`❌ Login failed: Missing credentials`);
       return res.status(400).json({ message: "Email and password required" });
     }
 
     const admin = await Admin.findOne({ email });
     if (!admin) {
+      console.log(`❌ Login failed: Admin not found - ${email}`);
       return res.status(404).json({ message: "Admin not found" });
     }
 
     if (admin.status !== "active") {
+      console.log(`❌ Login failed: Account disabled - ${email}`);
       return res.status(403).json({ message: "Account is disabled" });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
+      console.log(`❌ Login failed: Invalid password - ${email}`);
       return res.status(400).json({ message: "Invalid Password" });
     }
 
@@ -68,6 +72,7 @@ export const loginAdmin = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    console.log(`✅ Login successful: ${email} (${admin.role})`);
     res.json({
       message: "Login Successful",
       token,
@@ -80,7 +85,7 @@ export const loginAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("❌ Login error:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
