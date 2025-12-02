@@ -77,6 +77,17 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 
+// 404 handler - must be AFTER all routes
+app.use((req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ 
+    error: "Route not found",
+    method: req.method,
+    url: req.url,
+    message: "The requested endpoint does not exist"
+  });
+});
+
 const PORT = process.env.PORT || 3001;
 
 // Ensure Default Super Admin
