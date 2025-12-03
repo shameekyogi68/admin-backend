@@ -8,6 +8,15 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({}, { strict: false });
 const User = mongoose.model('User', userSchema, 'users');
 
+// Create a Subscription model
+let Subscription;
+try {
+  Subscription = mongoose.model('Subscription');
+} catch {
+  const subscriptionSchema = new mongoose.Schema({}, { strict: false });
+  Subscription = mongoose.model('Subscription', subscriptionSchema, 'subscriptions');
+}
+
 /**
  * GET /api/customers/getCustomers
  * Fetches users from Convenz database and transforms for admin panel
@@ -39,23 +48,44 @@ export const getCustomers = async (req, res) => {
       User.countDocuments(filter)
     ]);
 
-    // Transform users to admin panel format
-    const customers = users.map(user => ({
-      _id: user._id,
-      user_id: user.user_id,
-      name: user.name,
-      phone: user.phone,
-      email: user.email || '',
-      gender: user.gender || '',
-      address: user.address || '',
-      isOnline: user.isOnline || false,
-      subscription: user.subscription || null,
-      // Default values for admin panel
-      currentPack: user.currentPack || 'N/A',
-      status: user.status || 'Active',
-      expiryDate: user.expiryDate || null,
-      isBlocked: user.isBlocked || false,
-    }));
+    // Get user IDs to fetch subscriptions
+    const userIds = users.map(user => user.user_id).filter(Boolean);
+    
+    // Fetch all subscriptions for these users
+    const subscriptions = await Subscription.find({ 
+      userId: { $in: userIds },
+      status: 'Active' 
+    }).sort({ createdAt: -1 });
+
+    // Create a map of userId -> subscription
+    const subscriptionMap = {};
+    subscriptions.forEach(sub => {
+      if (!subscriptionMap[sub.userId]) {
+        subscriptionMap[sub.userId] = sub;
+      }
+    });
+
+    // Transform users to admin panel format with subscription data
+    const customers = users.map(user => {
+      const subscription = subscriptionMap[user.user_id];
+      
+      return {
+        _id: user._id,
+        user_id: user.user_id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email || '',
+        gender: user.gender || '',
+        address: user.address || '',
+        isOnline: user.isOnline || false,
+        subscription: user.subscription || null,
+        // Use subscription data if available, otherwise N/A
+        currentPack: subscription ? subscription.currentPack : 'N/A',
+        status: subscription ? subscription.status : 'N/A',
+        expiryDate: subscription ? subscription.expiryDate : null,
+        isBlocked: user.isBlocked || false,
+      };
+    });
 
     res.json({
       data: customers,
@@ -76,6 +106,12 @@ export const getCustomerById = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: 'Customer not found' });
     
+    // Fetch subscription for this user
+    const subscription = await Subscription.findOne({ 
+      userId: user.user_id,
+      status: 'Active'
+    }).sort({ createdAt: -1 });
+    
     const customer = {
       _id: user._id,
       user_id: user.user_id,
@@ -86,9 +122,11 @@ export const getCustomerById = async (req, res) => {
       address: user.address || '',
       isOnline: user.isOnline || false,
       subscription: user.subscription || null,
-      currentPack: user.currentPack || 'N/A',
-      status: user.status || 'Active',
-      expiryDate: user.expiryDate || null,
+      // Use subscription data if available
+      currentPack: subscription ? subscription.currentPack : 'N/A',
+      status: subscription ? subscription.status : 'N/A',
+      expiryDate: subscription ? subscription.expiryDate : null,
+      price: subscription ? subscription.price : null,
       isBlocked: user.isBlocked || false,
     };
     
