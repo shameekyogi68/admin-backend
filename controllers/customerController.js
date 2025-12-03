@@ -126,7 +126,6 @@ export const getCustomerById = async (req, res) => {
       currentPack: subscription ? subscription.currentPack : 'N/A',
       status: subscription ? subscription.status : 'N/A',
       expiryDate: subscription ? subscription.expiryDate : null,
-      price: subscription ? subscription.price : null,
       isBlocked: user.isBlocked || false,
     };
     
